@@ -121,7 +121,11 @@ smart_menu:
   # aboutme: '关于我'
 
 friends:
-  lizhao: http://lizhao.pw/
-  yihongxian: https://yihongxian.github.io/
+  lizhao:
+    avatar: http://lizhao.pw/styles/images/me/me.png
+    link: http://lizhao.pw/
+  yihongxian:
+    avatar: https://avatars0.githubusercontent.com/u/14807369?s=400&v=4
+    link: https://yihongxian.github.io/
 
 # aboutme: 很惭愧<br><br>只做了一点微小的工作<br>谢谢大家

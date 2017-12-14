@@ -90,7 +90,10 @@
         <ul class="search-ul">
           <% for (var i in theme.friends){ %>
             <li class="search-li">
-              <a href="<%- url_for(theme.friends[i]) %>" target="_blank" class="search-title"><i class="icon-quo-left icon"></i><%= i %></a>
+              <a href="<%- url_for(theme.friends[i].link) %>" target="_blank" class="search-title">
+                <img style="width: 48px; height: 48px; border-radius: 5px;" src="<%- url_for(theme.friends[i].avatar) %>" alt="<%= i %>">
+                <span style="vertical-align: top; margin-left: 1em;"><%= i %></span>
+              </a>
             </li>
           <% } %>
         </ul>
