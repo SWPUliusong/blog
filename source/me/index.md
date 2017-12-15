@@ -6,7 +6,7 @@ toc: true
 
 ## 基本情况
 - 姓名：刘松
-- 手机：184********
+- 手机：184\*\*\*\*\*\*\*\*
 - 邮箱：swpuliusong@foxmail.com
 - github：https://github.com/SWPUliusong
 
