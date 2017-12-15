@@ -29,6 +29,8 @@ WriteResult({ "nMatched" : 1, "nUpserted" : 0, "nModified" : 1 })
 }
 ```
 
+<!-- more -->
+
 ## $set
 将指定的键值对更新到文档，不修改其他键
 

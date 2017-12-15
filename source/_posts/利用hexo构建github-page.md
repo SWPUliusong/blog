@@ -13,6 +13,9 @@ toc: true
 ```
 > npm i -g hexo
 ```
+
+<!-- more -->
+
 ## 二、初始化文件
 ```
 > mkdir blog  // 文件夹名随意
