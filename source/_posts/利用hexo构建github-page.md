@@ -1,9 +1,7 @@
 ---
 title: '利用hexo构建github page'
 date: 2017-12-13 20:45:51
-tags: 
-    - hexo
-    - github page
+tags: [hexo, github page]
 toc: true
 ---
 
@@ -65,7 +63,7 @@ deploy:
 // 发布到配置的仓库
 > hexo d
 ```
-> 注意：发布前必须先在github创建这个仓库
+> 注意：发布前必须先在github创建**你的名字.github.io**这个仓库
 
 > 发布文章、页面等规则参考[hexo文档](https://hexo.io/zh-cn/docs/)
 
