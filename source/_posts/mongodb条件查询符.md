@@ -20,7 +20,7 @@ toc: true
 - $in 文档字段值与数组某个元素匹配
 - $nin 文档字段值不与数组任意元素匹配
 - $all 所有元素要与文档匹配
-```
+```javascript
 > db.col.find({age:{$in:[11,22]}})
 > db.col.find({age:{$nin:[11,22]}})
 > db.col.find({ Released:{$all:["2010","2009"]}})
@@ -30,7 +30,7 @@ toc: true
 - $or 或操作,满足其一
 - $and 与操作,满足全部条件
 - $nor 所列条件全部不满足
-```
+```javascript
 > db.col.find({$or:[{age:11},{age:22}]})
 > db.col.find({$and:[{age:11},{name:"xxx"}]})
 > db.col.find({$nor:[{age:11},{name:"xxx"}]})
@@ -39,7 +39,7 @@ toc: true
 ## $not $mod
 - $not与正则表达式联合使用时极为有效，用来查找那些与特定模式不匹配的文档。
 - $mod会将查询的值除以第一个给定的值，若余数等于第二个给定的值，则返回该结果。
-```
+```javascript
 > db.col.find({age:{$mod:[11,0]}})
 > db.col.find({age:{$not:{$mod:[11,0]}}})
 ```
@@ -48,7 +48,7 @@ toc: true
 相当于数组函数的切片,值可以是int或者[]int
 - int: 表示要返回的元素总数.正数从集合头部开始返回;负数从尾部
 - []int: 第一个参数定义的是偏移量，而第二个参数是限定的个数(同上)
-```
+```javascript
 > db.mediaCollection.find({"Title" : "Matrix, The"}).toArray()
 [
     {
@@ -127,7 +127,7 @@ toc: true
 
 ## $size
 对结果进行筛选，匹配指定的元素数的数组。
-```
+```javascript
 > db.mediaCollection.find( { Tracklist : {$size : 2} } ).toArray()
 [
     {
@@ -173,7 +173,7 @@ toc: true
 ## $exists
 - 布尔值
 - 筛选文档字段是否存在
-```
+```javascript
 > db.mediaCollection.find( { Author : {$exists : true } } ).toArray()
 [
     {
@@ -215,7 +215,7 @@ toc: true
 | Min key		                | 	255  |
 | Max key		                | 	127  |
 
-```
+```javascript
 > db.mediaCollection.find ( { Tracklist: { $type : 3 } } ).toArray()
 [
     {

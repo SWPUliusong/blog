@@ -28,7 +28,29 @@ let loadingIcon = `data:image/svg+xml;base64,PHN2ZyB4bW
     IGR1cj0iMC44cyIgcmVwZWF0Q291bnQ9ImluZGVmaW5pdGUiIC8+
     CiAgPC9wYXRoPgo8L3N2Zz4K`;
 ```
-首先将它赋给组件内展示的img元素的src属性,显示加载图标;然后创建一个img元素
+首先将它赋给组件内展示dom的img元素的src属性,显示加载图标;然后创建一个img元素,将它的src属性设置为真实图片的链接;这时,浏览器会开始加载图片,监听img的load事件,触发时再把真实图片src赋给dom上的img元素,由于浏览器都会缓存静态资源(除非后台设置不缓存),所以这次加载不经网络请求,直接从本地缓存获取
+```javascript
+this.imgSrc = loadingIcon;
+let img = document.createElement("img");
+img.src = this.src;
+img.addEventListener("load", () => {
+    this.imgSrc = img.src;
+});
+```
+
+2. 重新加载
+有时候,网络不畅而图片又很多时,图片也会加载失败,可以监听img的error事件,当触发时,删除img的src再重新赋值,引起浏览器重新加载
+```javascript
+img.addEventListener("error", () => {
+    count++;
+    delete img.src;
+    if (count === limit) {
+        img.src = "./static/deleted.jpg";
+    } else {
+        img.src = this.src;
+    }
+});
+```
 
 ### 最终代码
 ```html
