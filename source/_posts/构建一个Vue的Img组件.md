@@ -1,5 +1,5 @@
 ---
-title: '构建一个可重连,可断开的Img组件'
+title: '构建一个Vue的Img组件'
 date: 2017-12-19 17:01:25
 tags: vue
 ---
@@ -12,7 +12,7 @@ tags: vue
 <!-- more -->
 
 ### 解决方案
-1. 加载过渡
+- 加载过渡
 网络上copy了一个加载图标的base64字符串
 ```javascript
 let loadingIcon = `data:image/svg+xml;base64,PHN2ZyB4bW
@@ -38,9 +38,11 @@ img.addEventListener("load", () => {
 });
 ```
 
-2. 重新加载
+- 重新加载
 有时候,网络不畅而图片又很多时,图片也会加载失败,可以监听img的error事件,当触发时,删除img的src再重新赋值,引起浏览器重新加载
 ```javascript
+let count = 0;
+let limit = parseInt(this.reloadCount) || 3;
 img.addEventListener("error", () => {
     count++;
     delete img.src;
@@ -51,6 +53,45 @@ img.addEventListener("error", () => {
     }
 });
 ```
+
+- 断开链接
+当组件销毁时,如果连接仍然存在,势必会消耗带宽;这里可以保存加载图片的img对象,在销毁组件时,将他的src重置为预留图标
+```javascript
+let img = (this.imgElem = document.createElement("img"));
+
+    ......
+
+beforeDestroy() {
+  if(!this.isConnection) return
+  this.imgElem.src = loadingIcon;
+}
+```
+
+- 测试
+这里用v-if来触发销毁事件
+```javascript
+new Vue({
+  el: '#app',
+  template: `<div>
+    <button @click="destroy">destroy</button>
+    <my-image v-if="show" :src="src" alt="123" />
+  </div>`
+  data: {
+    show: true,
+    src: "https://ws1.sinaimg.cn/large/005tsFX0gy1fmfiiy7pmtj30ux0k8h7h.jpg"
+  },
+  methods: {
+    destroy() {
+      this.show = false
+    }
+  }
+})
+```
+![](https://ws1.sinaimg.cn/large/005tsFX0gy1fmoim7i635j30jv0hrdhk.jpg)
+
+在未加载时点击按钮,图片停止了加载,这里加载了部分所以返回了206,有时会直接显示cancel这个链接
+
+测试demo: https://jsfiddle.net/50wL7mdz/84704/
 
 ### 最终代码
 ```html
@@ -77,7 +118,8 @@ img.addEventListener("error", () => {
     data() {
       return {
         imgSrc: loadingIcon,
-        imgElem: null
+        imgElem: null,
+        isConnection: true
       };
     },
     mounted() {
@@ -92,6 +134,7 @@ img.addEventListener("error", () => {
         // 等img对象将图片加载缓存完成再把src赋给dom元素
         img.addEventListener("load", () => {
           this.imgSrc = img.src;
+          this.isConnection = false
         });
         // 图片加载失败则重新加载
         img.addEventListener("error", () => {
@@ -106,6 +149,7 @@ img.addEventListener("error", () => {
       });
     },
     beforeDestroy() {
+      if(!this.isConnection) return
       // 组件删除销毁时,重置隐藏Img的src属性可以断开加载链接
       this.imgElem.src = loadingIcon;
     }
