@@ -67,7 +67,7 @@ beforeDestroy() {
 }
 ```
 
-- 测试
+### 测试
 这里用v-if来触发销毁事件
 ```javascript
 new Vue({
