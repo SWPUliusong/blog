@@ -28,7 +28,7 @@ mobx的核心api很少
 
 > create-react-app todo-list           // 创建项目
 
-> cd myapp
+> cd todo-list
 
 > npm start
 ```
