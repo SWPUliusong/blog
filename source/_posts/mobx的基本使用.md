@@ -5,9 +5,7 @@ tags: [react, mobx]
 ---
 
 ### 前言
-我们知道react的组件是类似于树一样的结构,数据只能单向的由上向下传递,当组件树越来越复杂时,状态传递的层级会越来越深,整个应用也会变得非常杂乱.这时就需要引入状态管理工具,一般来说,redux和mobx都是比较好的选择,但是就初步接触的体验来说,个人更喜欢mobx
-
-<!-- more -->
+我们知道react的组件是类似于树一样的结构,数据只能单向的由上向下传递,当组件树越来越复杂时,状态传递的层级会越来越深,整个应用也会变得非常杂乱.这时就需要引入状态管理工具,一般来说,redux和mobx都是比较常见的选择,但是就初步接触的体验来说,个人更喜欢mobx
 
 ## mobx的基本概念
 mobx的核心api很少
@@ -16,6 +14,8 @@ mobx的核心api很少
 - autorun: 当它的依赖关系改变时会被触发
 - action: 对状态的修改动作(一般可省略,严格模式强制要求使用)
 - observer: mobx-react里的api,将mobx的store映射到组件的state
+
+<!-- more -->
 
 一般来说,基本工作流程-官方的图![](http://cn.mobx.js.org/flow.png)
 下面我们来写一个常见的todo list的例子
@@ -246,5 +246,3 @@ export class Filter extends React.Component {
 ### 最终效果
 ![](https://ws1.sinaimg.cn/large/005tsFX0gy1fn4p3qvyvgg317w0lwt9k.jpg)
 代码地址: [react-todo-list](https://github.com/SWPUliusong/coding-play/tree/master/react-todo-list)
-
-> 
