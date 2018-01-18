@@ -65,3 +65,62 @@ function getType(target) {
 ```
 
 ## 作用域
+- 作用域就是保存变量的一个域
+- 所有作用域构成了一个树形结构,全局作用域就是这个树的根节点.
+- 代码执行时就在当前作用域查找是否保存了该变量,如果没有则沿着上级作用域一次向上查找,到根节点为止,查不到就报错
+```javascript
+var a = 1;
+function fa() {
+    // var a = 2;
+    (function fb() {
+        // var a = 3;
+        (function fc(){
+            // var a = 4;
+            console.log(a);
+        })()
+    })()
+}
+fa()
+// 打印1
+```
+对于这段代码来说,作用域大致如图:
+![](https://ws1.sinaimg.cn/large/005tsFX0gy1fnkvc0lrakj30dt09r3yj.jpg)
+js引擎在fc里查不到变量a,则沿着作用域链向上,最终在全局作用域找到a.
+
+- 对于ES5来说,只存在全局作用域和函数作用域.
+- 而在ES6中则多了一个块级作用域
+
+ES6中的`let`,`const`等都具有块级作用域,而对于`function`来说,ES6规定:
+> - 允许在块级作用域内声明函数。
+> - 函数声明类似于var，即会提升到全局作用域或函数作用域的头部。
+> - 同时，函数声明还会提升到所在的块级作用域的头部。
+也就是说,在符合ES6规范的JS引擎里,`function`和`var`一样会出现声明提前,但是赋值会延后到代码位置
+```javascript
+// 浏览器的 ES6 环境
+function f() { console.log('I am outside!'); }
+(function () {
+  if (false) {
+    // 重复声明一次函数f
+    function f() { console.log('I am inside!'); }
+  }
+
+  f();
+}());
+// Uncaught TypeError: f is not a function
+```
+> **等价于**
+```javascript
+// 浏览器的 ES6 环境
+function f() { console.log('I am outside!'); }
+(function () {
+  var f = undefined;
+  if (false) {
+    function f() { console.log('I am inside!'); }
+  }
+
+  f();
+}());
+// Uncaught TypeError: f is not a function
+```
+
+> 参考于[阮一峰老师的博客](http://es6.ruanyifeng.com/)
