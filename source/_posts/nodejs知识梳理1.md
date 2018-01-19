@@ -24,7 +24,7 @@ tags: javascript
 `if`判断图
 js在做if判断的时候基本只有6个假值: 布尔值`false`,数字`0`,空字符串`""`,`null`,`undefined`,`NaN`
 ![](https://ws1.sinaimg.cn/large/005tsFX0gy1fn9i342spsj30ad0ez74r.jpg)
-> 原图来自 [JavaScript-Equality-Table](https://dorey.github.io/JavaScript-Equality-Table/)
+> 来自于 [JavaScript-Equality-Table](https://dorey.github.io/JavaScript-Equality-Table/)
 
 #### `typeof`操作符
 > 来自 [mdn](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof) 的描述
@@ -123,4 +123,40 @@ function f() { console.log('I am outside!'); }
 // Uncaught TypeError: f is not a function
 ```
 
-> 参考于[阮一峰老师的博客](http://es6.ruanyifeng.com/)
+> 来自于[阮一峰老师的博客](http://es6.ruanyifeng.com/)
+
+## 引用传递
+- 对于简单类型来说,是值传递
+- 对于复杂类型来说,是引用传递
+
+> 其实在函数调用时,传入的都是一份拷贝,而到底是值还是引用,取决于原值是值还是引用
+
+json对象拷贝函数
+```javascript
+// 第一种
+function copyJSON(json) {
+    return JSON.parse(JSON.stringify(json))
+}
+
+// 第二种
+function cloneJSON(json) {
+    let result = null
+    if (json instanceof Array) {
+        result = json.map(i => cloneJSON(i))
+    } else if (json instanceof Object) {
+        result = {}
+        let keys = Object.keys(json)
+        keys.forEach(key => {
+            result[key] = cloneJSON(json[key])
+        })
+    } else {
+        result = json
+    }
+    return result
+}
+```
+
+## 内存释放
+
+> 参考[【译】Node.js 垃圾回收](https://eggggger.xyz/2016/10/22/node-gc/)
+> 朴灵 [<<深入浅出nodejs>>]()
