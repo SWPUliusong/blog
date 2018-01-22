@@ -1,7 +1,7 @@
 ---
 title: 如何通过饿了么 Node.js 面试(一) --- JavaScript 基础问题
 date: 2018-01-08 20:02:20
-tags: javascript
+tags: [javascript, nodejs]
 ---
 
 ### 前言
@@ -25,7 +25,7 @@ tags: javascript
 `if`判断图
 js在做if判断的时候基本只有6个假值: 布尔值`false`,数字`0`,空字符串`""`,`null`,`undefined`,`NaN`
 ![](https://ws1.sinaimg.cn/large/005tsFX0gy1fn9i342spsj30ad0ez74r.jpg)
-> 原图来自 [JavaScript-Equality-Table](https://dorey.github.io/JavaScript-Equality-Table/)
+> 来自于 [JavaScript-Equality-Table](https://dorey.github.io/JavaScript-Equality-Table/)
 
 #### `typeof`操作符
 > 来自 [mdn](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/typeof) 的描述
@@ -124,4 +124,73 @@ function f() { console.log('I am outside!'); }
 // Uncaught TypeError: f is not a function
 ```
 
-> 参考于[阮一峰老师的博客](http://es6.ruanyifeng.com/)
+> 来自于[阮一峰老师的博客](http://es6.ruanyifeng.com/)
+
+## 引用传递
+- 对于简单类型来说,是值传递
+- 对于复杂类型来说,是引用传递
+
+> 其实在函数调用时,传入的都是一份拷贝,而到底是值还是引用,取决于原值是值还是引用
+
+#### json对象拷贝函数
+```javascript
+// 第一种
+function copyJSON(json) {
+    return JSON.parse(JSON.stringify(json))
+}
+
+// 第二种
+function cloneJSON(json) {
+    let result = null
+    if (json instanceof Array) {
+        result = json.map(i => cloneJSON(i))
+    } else if (json instanceof Object) {
+        result = {}
+        let keys = Object.keys(json)
+        keys.forEach(key => {
+            result[key] = cloneJSON(json[key])
+        })
+    } else {
+        result = json
+    }
+    return result
+}
+```
+
+## 内存释放
+存储方式
+1. 栈: 包含局部变量和指向堆上对象的引用
+2. 堆: 存放对象
+
+我们知道JS引擎和jvm一样是自动垃圾回收,V8将对象按存活时间进行分代,按照不同分代施以更高效的垃圾回收算法.
+
+主要将内存分为新生代和老生代
+> 新生代在64位和32位上分别为32MB和16MB
+> 老生代分别为1400MB和700MB
+
+#### 新生代回收算法
+> 新生代内存中主要使用Scavenge算法,一种采用复制的方式实现的垃圾回收算法.它将内存一分为二,每一部分空间称为semispace.在这两个semispace空间中,只有一个处于使用中,另一个处于闲置状态.处于使用中的semispace空间称为From空间,处于闲置的则称为To空间.当我们分配对象时,先是在From空间分配.当开始进行垃圾回收时,会检查From空间中的存活对象,这些存活对象将被复制到To空间,而未存活的对象占用的空间将被释放.完成复制后,From空间和To空间角色互换.
+
+新生代内存中的对象满足一些条件后会被晋升到老生代中:
+1. 对象经历过scavenge回收
+2. To空间的内存占比超过限制
+
+#### 老生代回收算法
+V8中主要采用了Mark-Sweep(标记清除法)和Mark-Compact(标记整理法)相结合的方式对老生代进行垃圾回收.
+##### 标记清除法
+在开始垃圾回收时,遍历堆中所有对象,并标记存活的对象,然后清除没有被标记的对象
+- 优点: 不用浪费一半空间;而且老生代中死亡的对象占少数,所以也能高效处理
+- 缺点: 清理完成后,内存空间会出现过不连续的状态.若下次分配一个所有碎片都无法满足的大对象时,则会触发不必要的垃圾回收
+
+##### 标记整理法
+Mark-Compact主要是为了解决Mark-Sweep的内存碎片问题.Mark-Compact的区别在于标记之后,将所有存活对象移向一端,完成后,清除边界外的内存
+**它可以清理出更大的连续空间,但也带来了更多的时间消耗,所以只是对Mark-Sweep的一次补全,对于老生代内存,V8主要还是使用Mark-Sweep算法**
+
+##### 三种算法比较
+![](https://ws1.sinaimg.cn/large/005tsFX0gy1fnpecdv2gkj30ny04sgm0.jpg)
+
+##### Buffer的内存
+在nodejs的开发过程中,会处理网络流和文件I/O,这种大的内存占用如果由V8来管理分配,则1400MB的限制是很头疼的,所以buffer是由node的c++的内建模块管理,属于堆外内存.在开发的过程中,不需要考虑V8的限制.
+
+> 朴灵 [<<深入浅出nodejs>>](https://item.jd.com/11355978.html)
+> [【译】Node.js 垃圾回收](https://eggggger.xyz/2016/10/22/node-gc/)
