@@ -16,6 +16,7 @@ tags: javascript
 5. `NaN`不等于所有值(包括自己)
 
 <!-- more -->
+> stackoverflow上有一个有趣的问题 [Is it ever possible that (a ==1 && a== 2 && a==3) could evaluate to true?](https://stackoverflow.com/questions/48270127/can-a-1-a-2-a-3-ever-evaluate-to-true),也很清晰的阐述了复杂类型在和简单类型比较时,JS到底做了什么
 
 `==`比较图
 ![](https://ws1.sinaimg.cn/large/005tsFX0gy1fn9i33ty02j30ip0hljro.jpg)
