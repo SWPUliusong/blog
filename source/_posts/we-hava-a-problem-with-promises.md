@@ -8,6 +8,8 @@ tags: javascript
 
 各位JavaScripters,是时候承认:我们遇到了关于promise的问题.
 
+不，并非是promise本身。由A +规范定义的承诺是非常棒的。
+
 在过去的一年里，我看到很多程序员都在为PouchDB API和其他promise API而苦苦挣扎的问题，这个问题是：
 
 我们很多人都使用promise,*却没有真正理解它*
