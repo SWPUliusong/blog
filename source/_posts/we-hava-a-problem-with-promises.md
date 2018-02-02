@@ -29,3 +29,5 @@ doSomething().then(doSomethingElse());
 doSomething().then(doSomethingElse);
 ```
 如果你知道答案,那么祝贺你,你已经是一个promise忍者了,不用再继续阅读这篇文章了.
+
+<!-- more -->

@@ -1,5 +1,5 @@
 ---
-title: mobx的基本使用
+title: 使用mobx实现一个todo list
 date: 2018-01-04 11:09:48
 tags: [react, mobx]
 ---

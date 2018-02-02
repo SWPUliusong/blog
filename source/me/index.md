@@ -14,10 +14,11 @@ toc: true
 1. 掌握html、css、javascript等基本知识，对ES6部分特性有一定掌握
 2. 熟悉jquery、bootstrap、lodash等开发工具库
 3. 熟悉angularjs、vuejs等框架，并有实际开发经验
-4. 了解less、babel等预处理工具
-5. 熟悉nodejs开发，并对express、koa等框架有一定的开发经验
+4. 熟悉nodejs开发，并对express、koa等框架有一定的开发经验
+5. 了解React开发,并有过一定的web开发实践
 6. 对restful api有一定的了解和实践
 7. 对gulp、webpack等自动化构建工具有一定了解和实践
+8. 了解less、babel等预处理工具
 
 ## 教育经历
 2013.9 ~ 2017.6		西南石油大学	本科	软件工程
@@ -33,10 +34,10 @@ toc: true
 - 公司：四川长虹佳华信息产品有限责任公司成都分公司
 - 职位：软件研发工程师
 - 工作内容： 参与车联网后台的开发，使用angular相关作为主要技术栈进行日常开发，gulp+webpack作为自动化构建工具，主要负责修改以前遗留的bug，和需求变更带来的部分模块的更新
-    1. 参与内部机房监控系统部分模块的编写
-    2. 参与车联网项目web前端的开发和维护
-    3. 负责公司签收单平台后台的web前端开发和维护
-    4. 负责公司tbox升级平台的web前端开发和维护
+    1. 参与内部机房监控系统部分模块的编写(Angularjs技术栈)
+    2. 参与车联网项目web前端的开发和维护(Augularjs技术栈)
+    3. 负责公司签收单平台后台的web前端开发和维护(Vue全家桶+Element)
+    4. 负责公司tbox升级平台的web前端开发和维护(React+mobx+antd)
 
 ## 部分项目介绍
 ### 一、车联网后台项目
