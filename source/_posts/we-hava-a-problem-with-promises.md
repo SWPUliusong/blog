@@ -8,7 +8,7 @@ tags: javascript
 
 各位JavaScripters,是时候承认:我们遇到了关于promise的问题.
 
-不,并非是promise本身.由A +规范定义的承诺是非常棒的.
+不,并非是promise本身.由A +规范定义的promise是非常棒的.
 
 在过去的一年里,我看到很多程序员都在为PouchDB API和其他promise API而苦苦挣扎的问题,这个问题是：
 
@@ -88,7 +88,7 @@ remotedb.allDocs(...).then(function (resultOfAllDocs) {
 这就是所谓的*"composing promises"*.每个函数只有在前一个promise已经resolve时才会被调用，并且会携带该promise的输出被调用。
 
 # 新手问题2: 我该如何在promise中使用`forEach()`?
-这是大多数人对promise的理解开始瓦解的地方.只要遇到他们熟悉的`forEach()`循环(或`for`循环或`while`循环),他们不知道如何使它与承诺工作.所以他们会像下面这样写:
+这是大多数人对promise的理解开始瓦解的地方.只要遇到他们熟悉的`forEach()`循环(或`for`循环或`while`循环),他们不知道如何使它与promise工作.所以他们会像下面这样写:
 ```javascript
 // I want to remove() all docs
 db.allDocs({include_docs: true}).then(function (result) {
@@ -163,7 +163,7 @@ somePromise().then(function () {
   // Spoiler alert: it hasn't.
 });
 ```
-好吧，这是一个好的点去谈论你所需要知道的关于承诺的一切.
+好吧，这是一个好的点去谈论你所需要知道的关于promise的一切.
 
 严格说，这是一个奇怪的招数.一旦你明白了，将防止我一直在谈论的所有错误。你准备好了吗？
 
@@ -190,7 +190,7 @@ getUserByName('nolan').then(function (user) {
   // I got a user account!
 });
 ```
-注意到我是`return`第二个承诺 - 这`return`是至关重要的。如果我没有`return`，那么`getUserAccountById()`实际上会产生一个副作用，下一个函数将接收`undefined`而不是`userAccount`。
+注意到我是`return`第二个promise - 这`return`是至关重要的。如果我没有`return`，那么`getUserAccountById()`实际上会产生一个副作用，下一个函数将接收`undefined`而不是`userAccount`。
 
 ## 2.return一个同步值(或者undefined)
 返回`undefined`通常是一个错误，但是返回一个同步值实际上是一个将同步代码转换为promise代码的好方法。例如，假设我们有一个用户的内存缓存。我们可以这样做：
@@ -229,7 +229,7 @@ getUserByName('nolan').then(function (user) {
 ```
 如果用户退出，我们`catch()`将得到一个同步错误;而且如果任意一个promise被reject,它也将收到的异步错误。同样的，函数不关心它得到的错误是同步的还是异步的。
 
-这是特别有用的，因为它可以帮助识别开发过程中的编码错误。例如，如果在`then()`函数内部的任何一点，我们做一个`JSON.parse()`，如果JSON是无效的，它可能会引发同步错误。通过回调，这个错误将被吞噬，但是有了承诺，我们可以简单地在我们的`catch()`函数内处理它。
+这是特别有用的，因为它可以帮助识别开发过程中的编码错误。例如，如果在`then()`函数内部的任何一点，我们做一个`JSON.parse()`，如果JSON是无效的，它可能会引发同步错误。通过回调，这个错误将被吞噬，但是有了promise，我们可以简单地在我们的`catch()`函数内处理它。
 
 # 高级错误
 好吧，现在你已经学会了让promise变得简单的一招，让我们来谈谈边缘案例。当然，总会有边缘情况。
@@ -316,7 +316,7 @@ it('should throw an error', function () {
 ```
 
 # 高级错误3: promises和promise工厂
-假设你想要一个接一个地执行一系列的promise。也就是说，你想要类似Promise.all()的东西，但是不能并行执行承诺。
+假设你想要一个接一个地执行一系列的promise。也就是说，你想要类似Promise.all()的东西，但是不能并行执行promise。
 
 你可能天真地写这样的东西：
 ```javascript
@@ -340,7 +340,7 @@ function executeSequentially(promiseFactories) {
   return result;
 }
 ```
-我知道你在想什么：“这个Java程序员到底是谁，他为什么要谈论工厂？” promise工厂是非常简单的，它只是一个返回承诺的函数：
+我知道你在想什么：“这个Java程序员到底是谁，他为什么要谈论工厂？” promise工厂是非常简单的，它只是一个返回promise的函数：
 ```javascript
 function myPromiseFactory() {
   return somethingThatCreatesAPromise();
@@ -395,16 +395,127 @@ getUserByName('nolan')
   // at this point, doSomething() is done, and we are back to indentation 0
 });
 ```
-随着您的承诺代码开始变得越来越复杂，您可能会发现自己将越来越多的功能提取到命名函数中。我发现这形成了非常美观的代码，可能看起来像这样：
+随着您的promise代码开始变得越来越复杂，您可能会发现自己将越来越多的功能提取到命名函数中。我发现这形成了非常美观的代码，可能看起来像这样：
 ```javascript
 putYourRightFootIn()
   .then(putYourRightFootOut)
   .then(putYourRightFootIn)  
   .then(shakeItAllAbout);
 ```
-这就是承诺。
+这就是promise。
 
-# 高级错误5: promise落空
-最后，这是我在上面介绍promise难题时所提到的错误。这是一个非常深奥的用例，它可能永远不会出现在你的代码中，但它肯定让我感到惊讶。
+# 高级错误5: promise向下传递
+最后，这是我在上面介绍promise难题时所提到的错误。这是一个非常深奥的用例，它可能永远不会出现在你的代码中，但它确实让我感到惊讶。
 
 你认为这个代码打印出来了什么？
+```javascript
+Promise.resolve('foo').then(Promise.resolve('bar')).then(function (result) {
+  console.log(result);
+});
+```
+如果你认为它打印出来`bar`，那就错了。它实际上打印出来`foo`！
+
+原因就是当我们传递给`then()`一个非函数(例如一个promise)时,它事实上理解为`then(null)`,这就导致了前一个promise的结果向下传递,你可以自己测试下:
+```javascript
+Promise.resolve('foo').then(null).then(function (result) {
+  console.log(result);
+});
+```
+添加任意数量的`then(null)`,它仍然打印`foo`.
+
+这实际上回到了前面关于promise和promise工厂的观点。总之，你可以直接传递一个promise给`then()`方法，但是它不会像你想的那样工作。`then()`应该是一个函数，所以很可能你的意思是：
+```javascript
+Promise.resolve('foo').then(function () {
+  return Promise.resolve('bar');
+}).then(function (result) {
+  console.log(result);
+});
+```
+这将打印bar，如我们所料。
+
+所以只要提醒自己：总是把一个函数传递给then()！
+
+# 解决难题
+现在我们已经学习了promise所有相关的,应该可以解决我在文章开头提出的问题了.
+
+这里是每个问题的答案,以图形格式,以便你更好地理解它
+
+## 难题1
+```javascript
+doSomething().then(function () {
+  return doSomethingElse();
+}).then(finalHandler);
+```
+答案:
+```
+doSomething
+|-----------------|
+                  doSomethingElse(undefined)
+                  |------------------|
+                                     finalHandler(resultOfDoSomethingElse)
+                                     |------------------|
+```
+
+## 难题2
+```javascript
+doSomething().then(function () {
+  doSomethingElse();
+}).then(finalHandler);
+```
+答案:
+```
+doSomething
+|-----------------|
+                  doSomethingElse(undefined)
+                  |------------------|
+                  finalHandler(undefined)
+                  |------------------|
+```
+
+# 难题3
+```javascript
+doSomething().then(doSomethingElse())
+  .then(finalHandler);
+```
+答案:
+```
+doSomething
+|-----------------|
+doSomethingElse(undefined)
+|---------------------------------|
+                  finalHandler(resultOfDoSomething)
+                  |------------------|
+```
+
+# 难题4
+```javascript
+doSomething().then(doSomethingElse)
+  .then(finalHandler);
+```
+答案:
+```
+doSomething
+|-----------------|
+                  doSomethingElse(resultOfDoSomething)
+                  |------------------|
+                                     finalHandler(resultOfDoSomethingElse)
+                                     |------------------|
+```
+如果这些答案仍然不够明了，那么我鼓励你重新阅读这篇文章，或者定义doSomething()和doSomethingElse()方法，并在浏览器中自己尝试。
+
+> **说明**: 对于这些示例，我假设`doSomething()`和`doSomethingElse()`都返回promise，而这些promise代表JavaScript事件循环之外完成的任务(例如IndexedDB、Network、setTimeout)，这就是为什么它们在适当的时候表现出并发。这是一个[JSBin](http://jsbin.com/tuqukakawo/1/edit?js,console,output)的演示.
+
+对于promise的更高级用法，请查看我的[promise protips cheat sheet](https://gist.github.com/nolanlawson/6ce81186421d2fa109a4)
+
+# 关于promise的最后一句话
+promise是伟大的。如果您还在使用回调，我强烈建议您切换到promise。你的代码将变得更小，更优雅，更容易理解。
+
+如果你不相信我，这是证明：[PouchDB的map/reduce模块的重构](https://t.co/hRyc6ENYGC)，用promise来代替回调。结果：290次插入，555次删除。
+
+顺便说一句，写那个讨厌的回调代码的人是...我！因此，这是我promise的第一课，我感谢其他PouchDB的贡献者一路指导我。
+
+话虽如此，但promise并不完美。确实，他们比回调更好，但是这很像是说在肚子上打了一拳比在牙齿上踢一脚好。当然，一个比另一个更好，但是如果你有选择的话，你可能会避免他们两个。
+
+虽然优于回调，但promise仍然难以理解且容易出错，正如我感到不得不写这篇博客的事实所证明的那样。新手和专家都会经常把这些东西搞砸，实际上，这不是他们的错。问题是promise，虽然类似于我们在同步代码中使用的模式，但它是一个合适的替代品，不完全相同。
+
+事实上，你不应该学一堆神秘的规则和新的API来做事情，在同步的世界里，你可以用熟悉的模式，比如做得很清楚return，catch，throw，和for循环。不应该有两个平行的系统，你必须时刻保持头脑清醒。
