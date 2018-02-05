@@ -85,7 +85,7 @@ remotedb.allDocs(...).then(function (resultOfAllDocs) {
   console.log(err);
 });
 ```
-这就是所谓的promise结构.每个函数只有在前一个promise已经resolve时才会被调用，并且会携带该promise的输出被调用。
+这就是所谓的*"composing promises"*.每个函数只有在前一个promise已经resolve时才会被调用，并且会携带该promise的输出被调用。
 
 # 新手问题2: 我该如何在promise中使用`forEach()`?
 这是大多数人对promise的理解开始瓦解的地方.只要遇到他们熟悉的`forEach()`循环(或`for`循环或`while`循环),他们不知道如何使它与承诺工作.所以他们会像下面这样写:
@@ -128,3 +128,283 @@ somePromise().then(function () {
   return yetAnotherPromise();
 }).catch(console.log.bind(console)); // <-- this is badass
 ```
+即使你不会期待错误,但应该总是谨慎的添加一个`catch()`.如果你的假设结果是错误的,它会让你的生活更轻松.
+
+# 新手错误4: 使用"deferred"
+这是我看到的最多的错误,我甚至不愿意在这里重复它,因为担心像Beetlejuice一样，只调用它的名字就会召唤更多的实例。
+
+简单来说,promise历史悠久,JavaScript社区用了很长时间使它规范化.在早期,jQuery和Angular使用了"deferred"模式.但是现在已经被ES6 promise规范取代,并由像Q,When,RSVP,Lie等库实现.
+
+首先，大多数promise库都为您提供了从第三方库"import" Promise的方法。例如，Angular的$q模块允许你使用$q.when()来包装非promise。所以Angular用户可以这样包装PouchDB的promise：
+```javascript
+$q.when(db.put(doc)).then(/* ... */); // <-- this is all the code you need
+```
+另一个策略是构造模式,他对非promise是有用的.例如，要包装一个基于回调的API，比如Node `fs.readFile()`，你可以简单地做：
+```javascript
+new Promise(function (resolve, reject) {
+  fs.readFile('myfile.txt', function (err, file) {
+    if (err) {
+      return reject(err);
+    }
+    resolve(file);
+  });
+}).then(/* ... */)
+```
+完成！我们已经击败了可怕的def ...啊哈，抓住了我自己。:)
+> 有关为什么这是反模式的更多信息，请查看[Bluebird wiki页面上的诺言反模式](https://github.com/petkaantonov/bluebird/wiki/Promise-anti-patterns#the-deferred-anti-pattern)。
+
+# 新手错误5: 使用副作用而不是返回
+这段代码有什么问题?
+```javascript
+somePromise().then(function () {
+  someOtherPromise();
+}).then(function () {
+  // Gee, I hope someOtherPromise() has resolved!
+  // Spoiler alert: it hasn't.
+});
+```
+好吧，这是一个好的点去谈论你所需要知道的关于承诺的一切.
+
+严格说，这是一个奇怪的招数.一旦你明白了，将防止我一直在谈论的所有错误。你准备好了吗？
+
+正如我之前所说,promise的魅力在于他将珍贵的`return`和`throw`还给了我们.但是在实践中实际是什么样呢?
+
+每个promise都会给你一个`then()`方法(还有`catch()`,它只是`then(null, ...)`的语法糖),这里我们在一个`then()`函数内部:
+```javascript
+somePromise().then(function () {
+  // I'm inside a then() function!
+});
+```
+这里我们应该怎么做?有三种方案:
+1. `return`另一个promise
+2. `return`一个同步值(或者undefined)
+3. `throw`一个同步错误
+就是这样。一旦你明白了这个诀窍，你就明白了promise。所以让我们依次通过每一个点
+
+## 1.return另一个promise
+这是你在promise书籍中常见的一种模式,就像上面的*"composing promises"*一样:
+```javascript
+getUserByName('nolan').then(function (user) {
+  return getUserAccountById(user.id);
+}).then(function (userAccount) {
+  // I got a user account!
+});
+```
+注意到我是`return`第二个承诺 - 这`return`是至关重要的。如果我没有`return`，那么`getUserAccountById()`实际上会产生一个副作用，下一个函数将接收`undefined`而不是`userAccount`。
+
+## 2.return一个同步值(或者undefined)
+返回`undefined`通常是一个错误，但是返回一个同步值实际上是一个将同步代码转换为promise代码的好方法。例如，假设我们有一个用户的内存缓存。我们可以这样做：
+```javascript
+getUserByName('nolan').then(function (user) {
+  if (inMemoryCache[user.id]) {
+    return inMemoryCache[user.id];    // returning a synchronous value!
+  }
+  return getUserAccountById(user.id); // returning a promise!
+}).then(function (userAccount) {
+  // I got a user account!
+});
+```
+这不是很棒吗？第二个函数不关心userAccount是同步还是异步取出，第一个函数可以自由返回同步或异步值。
+
+不幸的的是,在JavaScript中,无返回值的函数总是返回`undefiend`,这意味着当你打算return某些值时，意外地引入副作用是很容易的。
+
+出于这个原因，我总是在`then()`函数内部`return`或者`throw`，这是个人习惯。我建议你也这样做。
+
+## 3.throw一个同步错误
+说起来`throw`，这是promise可以变得更加棒的地方。假设我们想`throw`在用户注销的情况下发生的同步错误。这很容易：
+```javascript
+getUserByName('nolan').then(function (user) {
+  if (user.isLoggedOut()) {
+    throw new Error('user logged out!'); // throwing a synchronous error!
+  }
+  if (inMemoryCache[user.id]) {
+    return inMemoryCache[user.id];       // returning a synchronous value!
+  }
+  return getUserAccountById(user.id);    // returning a promise!
+}).then(function (userAccount) {
+  // I got a user account!
+}).catch(function (err) {
+  // Boo, I got an error!
+});
+```
+如果用户退出，我们`catch()`将得到一个同步错误;而且如果任意一个promise被reject,它也将收到的异步错误。同样的，函数不关心它得到的错误是同步的还是异步的。
+
+这是特别有用的，因为它可以帮助识别开发过程中的编码错误。例如，如果在`then()`函数内部的任何一点，我们做一个`JSON.parse()`，如果JSON是无效的，它可能会引发同步错误。通过回调，这个错误将被吞噬，但是有了承诺，我们可以简单地在我们的`catch()`函数内处理它。
+
+# 高级错误
+好吧，现在你已经学会了让promise变得简单的一招，让我们来谈谈边缘案例。当然，总会有边缘情况。
+
+我将这些错误归类为“高级”，因为我只看到已经相当熟悉promise的程序员做过。但是，如果我们想要解决我在这篇文章开头提出的难题，我们需要讨论它们。
+
+高级错误1: 不知道`Promise.resolve()`
+正如我上面所展示的，promise对于将同步代码封装为异步代码非常有用。但是，如果你发现自己打字很多：
+```javascript
+new Promise(function (resolve, reject) {
+  resolve(someSynchronousValue);
+}).then(/* ... */);
+```
+你可以使用`Promise.resolve()`更简洁的表达它
+```javascript
+Promise.resolve(someSynchronousValue).then(/* ... */);
+```
+这对捕捉任何同步错误也非常有用。这是非常有用的，我已经养成了习惯,几乎所有返回promise API的方法, 都像这样：
+```javascript
+function somePromiseAPI() {
+  return Promise.resolve().then(function () {
+    doSomethingThatMayThrow();
+    return 'foo';
+  }).then(/* ... */);
+}
+```
+只要记住: 任何可以同步`throw`的代码都是一个很好的选择,他不可能在调试时吞噬错误.但是如果你用`Promise.resolve()`包裹所有的,那么你总是可以确定稍后在`catch()`内捕获它
+
+同样的`Promise.reject()`，你可以用它来返回一个立即被reject的promise：
+```javascript
+Promise.reject(new Error('some awful error'));
+```
+
+# 高级错误2：`then(resolveHandler).catch(rejectHandler)`和`then(resolveHandler, rejectHandler)`不完全一样
+我上面说`catch()`的只是糖。所以这两个片段是相同的：
+```javascript
+somePromise().catch(function (err) {
+  // handle error
+});
+
+somePromise().then(null, function (err) {
+  // handle error
+});
+```
+但是，这并不意味着以下两个片段是等价的：
+```javascript
+somePromise().then(function () {
+  return someOtherPromise();
+}).catch(function (err) {
+  // handle error
+});
+
+somePromise().then(function () {
+  return someOtherPromise();
+}, function (err) {
+  // handle error
+});
+```
+如果您想知道为什么它们不等价，请考虑如果第一个函数引发错误会发生什么情况：
+```javascript
+somePromise().then(function () {
+  throw new Error('oh noes');
+}).catch(function (err) {
+  // I caught your error! :)
+});
+
+somePromise().then(function () {
+  throw new Error('oh noes');
+}, function (err) {
+  // I didn't catch your error! :(
+});
+```
+事实证明，当你使用`then(resolveHandler, rejectHandler)`格式时，如果它本身的`resolveHandler`抛出错误，它的`rejectHandler`实际上不会捕获到。
+
+出于这个原因，我已经把"永远不要使用`then()`的第二个参数"作为个人的习惯，而总是喜欢`catch()`。例外情况是,当我编写异步Mocha测试时，我可能会写一个测试来确保抛出错误：
+```javascript
+it('should throw an error', function () {
+  return doSomethingThatThrows().then(function () {
+    throw new Error('I expected an error!');
+  }, function (err) {
+    should.exist(err);
+  });
+});
+```
+
+# 高级错误3: promises和promise工厂
+假设你想要一个接一个地执行一系列的promise。也就是说，你想要类似Promise.all()的东西，但是不能并行执行承诺。
+
+你可能天真地写这样的东西：
+```javascript
+function executeSequentially(promises) {
+  var result = Promise.resolve();
+  promises.forEach(function (promise) {
+    result = result.then(promise);
+  });
+  return result;
+}
+```
+不幸的是，这不会按照你想要的方式工作。你传递给`executeSequentially()`的promise将仍然并行执行。
+
+发生这种情况的原因是你根本不想操作一系列的promise。根据promise规范，只要promise被创建，它就开始执行。所以你真正想要的是一系列的promise工厂：
+```javascript
+function executeSequentially(promiseFactories) {
+  var result = Promise.resolve();
+  promiseFactories.forEach(function (promiseFactory) {
+    result = result.then(promiseFactory);
+  });
+  return result;
+}
+```
+我知道你在想什么：“这个Java程序员到底是谁，他为什么要谈论工厂？” promise工厂是非常简单的，它只是一个返回承诺的函数：
+```javascript
+function myPromiseFactory() {
+  return somethingThatCreatesAPromise();
+}
+```
+为什么这个工作？这是有效的，因为promise工厂在被调用前不会创造promise。它和一个then函数一样工作 - 事实上，它是一样的！
+
+如果你看看`executeSequentially()`上面的功能，然后想象`myPromiseFactory`代替`result.then(...)`里面的，那么希望点亮你的大脑。那一刻，你将会得到启发。
+
+# 高级错误4: 如果我想要两个promise的结果呢？
+很多时候，一个promise将取决于另一个promise，但是我们需要所有promise的输出。例如：
+```javascript
+getUserByName('nolan').then(function (user) {
+  return getUserAccountById(user.id);
+}).then(function (userAccount) {
+  // dangit, I need the "user" object too!
+});
+```
+为了成为优秀的JavaScript开发人员，避免厄运的金字塔，我们可能只是将user对象存储在上一级作用域的变量中：
+```javascript
+var user;
+getUserByName('nolan').then(function (result) {
+  user = result;
+  return getUserAccountById(user.id);
+}).then(function (userAccount) {
+  // okay, I have both the "user" and the "userAccount"
+});
+```
+他是可行的,但我个人不太赞成.我推荐的方式是: 放开偏见,接纳金字塔:
+```javascript
+getUserByName('nolan').then(function (user) {
+  return getUserAccountById(user.id).then(function (userAccount) {
+    // okay, I have both the "user" and the "userAccount"
+  });
+});
+```
+...至少，暂时这样.如果缩进成为一个问题，那么你可以做JavaScript开发人员自古以来一直在做的事情，将该函数提取到一个命名函数中：
+```javascript
+function onGetUserAndUserAccount(user, userAccount) {
+  return doSomething(user, userAccount);
+}
+
+function onGetUser(user) {
+  return getUserAccountById(user.id).then(function (userAccount) {
+    return onGetUserAndUserAccount(user, userAccount);
+  });
+}
+
+getUserByName('nolan')
+  .then(onGetUser)
+  .then(function () {
+  // at this point, doSomething() is done, and we are back to indentation 0
+});
+```
+随着您的承诺代码开始变得越来越复杂，您可能会发现自己将越来越多的功能提取到命名函数中。我发现这形成了非常美观的代码，可能看起来像这样：
+```javascript
+putYourRightFootIn()
+  .then(putYourRightFootOut)
+  .then(putYourRightFootIn)  
+  .then(shakeItAllAbout);
+```
+这就是承诺。
+
+# 高级错误5: promise落空
+最后，这是我在上面介绍promise难题时所提到的错误。这是一个非常深奥的用例，它可能永远不会出现在你的代码中，但它肯定让我感到惊讶。
+
+你认为这个代码打印出来了什么？
