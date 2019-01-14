@@ -1,7 +1,7 @@
 ---
 title: 手写parseInt
 date: 2019-01-14 16:45:30
-tags: javascript
+tags: [javascript, 面试]
 ---
 
 ### parseInt功能描述

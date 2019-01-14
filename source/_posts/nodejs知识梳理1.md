@@ -1,7 +1,7 @@
 ---
 title: 如何通过饿了么 Node.js 面试(一) --- JavaScript 基础问题
 date: 2018-01-08 20:02:20
-tags: [javascript, nodejs]
+tags: [javascript, nodejs, 面试]
 ---
 
 ### 前言
